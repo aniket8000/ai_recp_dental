@@ -1,72 +1,69 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-export default function MicButton({ onVoiceResponse }) {
+export default function MicButton({ onVoice }) {
   const [recording, setRecording] = useState(false);
+
+  // ✅ Dynamically choose backend (works locally + on deploy)
+  const backendURL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   const handleMic = () => {
     if (!("webkitSpeechRecognition" in window)) {
-      alert("Your browser doesn’t support speech recognition. Use Chrome.");
+      alert("🎙️ Your browser doesn’t support speech recognition. Try Chrome.");
       return;
     }
 
-    const recognition = new window.webkitSpeechRecognition();
+    const recognition = new webkitSpeechRecognition();
     recognition.lang = "en-IN";
-    recognition.continuous = false;
     recognition.interimResults = false;
+    recognition.continuous = false;
 
-    recognition.onstart = () => {
-      console.log("🎙 Listening...");
-      setRecording(true);
-    };
+    recognition.start();
+    setRecording(true);
 
     recognition.onresult = async (event) => {
-      const userSpeech = event.results[0][0].transcript;
-      console.log("🗣 You said:", userSpeech);
-      setRecording(false);
+      const text = event.results[0][0].transcript;
+      console.log("🎧 Recognized:", text);
 
+      // Send recognized text to backend (optional, like typing)
       try {
-        const res = await axios.post("http://localhost:3000/api/chat/message", {
-          text: userSpeech,
+        const res = await axios.post(`${backendURL}/api/chat/message`, {
+          text,
         });
 
-        const aiReply = res.data.text || "Sorry, I didn’t catch that.";
-        const ttsUrl = res.data.ttsUrl;
+        const reply = res.data.text || res.data.reply || "Sorry, I didn’t get that.";
+        onVoice(reply);
 
-        // send to chat UI
-        onVoiceResponse(aiReply);
-
-        // speak out loud
-        if (ttsUrl) {
-          const audio = new Audio(ttsUrl);
+        // Play reply (AI speaking back)
+        if (res.data.ttsUrl) {
+          const audio = new Audio(res.data.ttsUrl);
           audio.play();
         }
-      } catch (error) {
-        console.error("❌ Voice chat failed:", error);
-        onVoiceResponse("⚠️ Error connecting to AI server.");
+      } catch (err) {
+        console.error("❌ Voice AI error:", err.message);
+        onVoice("Server not reachable or failed to respond.");
       }
+
+      setRecording(false);
     };
 
     recognition.onerror = (err) => {
-      console.error("Speech recognition error:", err);
+      console.error("🎤 Speech recognition error:", err);
       setRecording(false);
     };
 
     recognition.onend = () => {
-      console.log("🎤 Mic stopped");
       setRecording(false);
     };
-
-    recognition.start();
   };
 
   return (
     <button
       className={`mic-btn ${recording ? "pulse" : ""}`}
       onClick={handleMic}
-      title="Click to speak"
+      title="Speak to the assistant"
     >
-      {recording ? "🛑" : "🎙"}
+      {recording ? "🎙️ Listening..." : "🎤"}
     </button>
   );
 }

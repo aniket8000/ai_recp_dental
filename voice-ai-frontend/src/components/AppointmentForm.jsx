@@ -21,7 +21,9 @@ export default function AppointmentForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:3000/api/appointments/book", form);
+      const backendURL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const res = await axios.post(`${backendURL}/api/appointments/book`, form);
+
       setConfirmation(res.data.appointment);
     } catch (err) {
       alert(err.response?.data?.error || "Booking failed. Try again.");

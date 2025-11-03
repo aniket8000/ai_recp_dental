@@ -6,6 +6,9 @@ export default function InputBar({ onSend }) {
   const [input, setInput] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
 
+  // ✅ Automatically use Render URL if available
+  const backendURL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
   const handleSend = async () => {
     if (input.trim()) {
       await handleChat(input);
@@ -23,12 +26,12 @@ export default function InputBar({ onSend }) {
 
   const handleChat = async (userText) => {
     try {
-      // Send user message to backend chat API
-      const res = await axios.post("http://localhost:3000/api/chat/message", {
+      // ✅ Dynamic backend URL
+      const res = await axios.post(`${backendURL}/api/chat/message`, {
         message: userText,
       });
 
-      const botReply = res.data.reply;
+      const botReply = res.data.reply || res.data.text;
       onSend(userText, botReply); // update chat UI
 
       // Speak bot’s reply
@@ -40,9 +43,8 @@ export default function InputBar({ onSend }) {
 
   const playTTS = async (text) => {
     try {
-      const res = await axios.post("http://localhost:3000/api/tts/speak", {
-        text,
-      });
+      // ✅ Dynamic backend URL
+      const res = await axios.post(`${backendURL}/api/tts/speak`, { text });
       const audioUrl = res.data.audioUrl;
 
       if (audioUrl) {
