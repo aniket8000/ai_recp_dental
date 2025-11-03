@@ -1,60 +1,43 @@
 import React, { useState } from "react";
 import axios from "axios";
-import MicButton from "./MicButton";
 
 export default function InputBar({ onSend }) {
   const [input, setInput] = useState("");
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Automatically use Render URL if available
-  const backendURL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  // ✅ Auto-switch between local and deployed
+  const backendURL =
+    import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:3000";
 
   const handleSend = async () => {
-    if (input.trim()) {
-      await handleChat(input);
-      setInput("");
-    }
+    if (!input.trim()) return;
+    await handleChat(input.trim());
+    setInput("");
   };
 
   const handleKey = (e) => {
     if (e.key === "Enter") handleSend();
   };
 
-  const handleVoice = async (text) => {
-    if (text) await handleChat(text);
-  };
-
   const handleChat = async (userText) => {
+    setLoading(true);
     try {
-      // ✅ Dynamic backend URL
+      console.log("🔹 Sending to backend:", `${backendURL}/api/chat/message`);
+
       const res = await axios.post(`${backendURL}/api/chat/message`, {
         message: userText,
       });
 
-      const botReply = res.data.reply || res.data.text;
-      onSend(userText, botReply); // update chat UI
+      console.log("✅ Chat response:", res.data);
 
-      // Speak bot’s reply
-      if (botReply) playTTS(botReply);
+      // ✅ Use the correct response property
+      const botReply = res.data.text || res.data.reply || "No response from server.";
+      onSend(userText, botReply);
     } catch (err) {
       console.error("❌ Chat error:", err);
-    }
-  };
-
-  const playTTS = async (text) => {
-    try {
-      // ✅ Dynamic backend URL
-      const res = await axios.post(`${backendURL}/api/tts/speak`, { text });
-      const audioUrl = res.data.audioUrl;
-
-      if (audioUrl) {
-        const audio = new Audio(audioUrl);
-        setIsSpeaking(true);
-        audio.play();
-        audio.onended = () => setIsSpeaking(false);
-      }
-    } catch (err) {
-      console.error("❌ TTS playback failed:", err);
+      onSend(userText, "⚠️ Server not reachable.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,13 +47,12 @@ export default function InputBar({ onSend }) {
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKey}
-        placeholder="Type something..."
+        placeholder={loading ? "Waiting for response..." : "Type something..."}
+        disabled={loading}
       />
-      <button className="send-btn" onClick={handleSend}>
-        Send
+      <button className="send-btn" onClick={handleSend} disabled={loading}>
+        {loading ? "..." : "Send"}
       </button>
-      <MicButton onVoice={handleVoice} />
-      {isSpeaking && <span className="speaking-indicator">🔊 Speaking...</span>}
     </div>
   );
 }

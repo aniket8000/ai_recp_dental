@@ -1,6 +1,6 @@
 /**
  * server.js
- * Entry point for the Voice AI Receptionist backend.
+ * Clean version – no TTS or Voice routes.
  */
 
 require("dotenv").config();
@@ -12,8 +12,6 @@ const { connectDB } = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
-const voiceRoutes = require("./routes/voiceRoutes");
-const ttsRoutes = require("./routes/ttsRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,10 +19,10 @@ const PORT = process.env.PORT || 3000;
 // ✅ Connect to MongoDB
 connectDB();
 
-// ✅ Normalize frontend URL (remove trailing slash if exists)
+// ✅ Normalize frontend URL (remove trailing slash)
 const allowedOrigin = (process.env.FRONTEND_URL || "http://localhost:5173").replace(/\/$/, "");
 
-// ✅ Enhanced CORS setup
+// ✅ CORS setup
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -45,14 +43,12 @@ app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
-// ✅ API Routes
+// ✅ Active Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/appointments", appointmentRoutes);
-app.use("/api/tts", ttsRoutes);
-app.use("/api/voice", voiceRoutes);
 
-// ✅ Health Check Endpoint
+// ✅ Health route
 app.get("/health", (req, res) => {
   res.json({
     status: "ok",
@@ -61,7 +57,27 @@ app.get("/health", (req, res) => {
   });
 });
 
-// ✅ Start Server
+// ✅ Root route fallback
+app.all("/", (req, res) => {
+  res.status(200).send(`
+    <h2>🦷 Voice AI Receptionist Backend</h2>
+    <p>Status: ✅ Running fine</p>
+    <p>Allowed Frontend: ${allowedOrigin}</p>
+    <p>Method: ${req.method}</p>
+    <p>Time: ${new Date().toLocaleString()}</p>
+  `);
+});
+
+// ✅ 404 fallback
+app.use((req, res) => {
+  res.status(404).json({
+    error: "Route not found",
+    path: req.originalUrl,
+    method: req.method,
+  });
+});
+
+// ✅ Start server
 app.listen(PORT, () => {
   console.log(`✅ Backend running on port ${PORT}`);
   console.log(`🌐 Allowed Frontend Origin: ${allowedOrigin}`);
