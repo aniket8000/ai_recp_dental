@@ -1,0 +1,13 @@
+# Global ignores
+node_modules/
+.DS_Store
+
+# Environment files
+.env
+backend/.env
+voice-ai-frontend/.env
+backend/config/service-account.json
+
+# Build / dist output
+backend/logs/
+voice-ai-frontend/dist/

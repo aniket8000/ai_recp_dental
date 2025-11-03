@@ -1,0 +1,198 @@
+:root {
+  --card-width: 480px;
+  --card-bg: rgba(18, 18, 44, 0.96);
+  --muted: #bdbdbd;
+  --glow1: #2e2b7f;
+  --glow2: #007ea7;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* ---------- Background ---------- */
+.appointment-background {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 60px;
+  background: radial-gradient(circle at 10% 20%, #1a1f4a 0%, #0d0e22 40%, #090910 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ---------- Glowing Orbs ---------- */
+.floating-orb {
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.25;
+  z-index: 0;
+}
+.orb1 {
+  background: var(--glow1);
+  top: -150px;
+  left: -120px;
+}
+.orb2 {
+  background: var(--glow2);
+  bottom: -150px;
+  right: -120px;
+}
+
+/* ---------- Center Card ---------- */
+.appointment-card {
+  z-index: 5;
+  width: var(--card-width);
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  padding: 30px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+}
+
+/* ---------- Titles ---------- */
+.form-title {
+  font-size: 28px;
+  color: #22d3ee;
+  margin-bottom: 10px;
+  text-shadow: 0 0 8px rgba(34, 211, 238, 0.3);
+}
+
+.confirmation-title {
+  font-size: 26px;
+  color: #4fd1c5;
+  margin-bottom: 8px;
+}
+
+/* ---------- Form Elements ---------- */
+.appointment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="datetime-local"],
+select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.07);
+  color: #e6eef8;
+  font-size: 15px;
+  outline: none;
+  transition: background 0.2s ease;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+select option {
+  color: #111;
+  background: #fff;
+}
+
+input:focus,
+select:focus {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ---------- Submit Button ---------- */
+.submit-btn {
+  background: linear-gradient(90deg, #00bcd4, #2196f3);
+  color: #fff;
+  font-weight: 600;
+  padding: 12px 0;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+}
+
+/* ---------- Confirmation Box ---------- */
+.confirmation-box {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 18px;
+  border-radius: 10px;
+  font-size: 15px;
+
+  /* ✅ Make items vertical and centered */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.calendar-link {
+  color: #8edbff;
+  text-decoration: underline;
+  margin-top: 12px;
+  margin-bottom: 12px; /* ✅ space before back button */
+  display: block; /* ✅ force it to occupy its own line */
+}
+
+.warning {
+  color: #ffc107;
+  margin-top: 10px;
+}
+
+/* ---------- Back Button ---------- */
+.back-btn {
+  background: rgba(255, 255, 255, 0.07);
+  border: none;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  margin-top: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ---------- Animations ---------- */
+.fade-in {
+  animation: fadeIn 0.4s ease-in-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+  :root {
+    --card-width: 90vw;
+  }
+  .appointment-card {
+    padding: 20px;
+  }
+}

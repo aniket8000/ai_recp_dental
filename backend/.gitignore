@@ -1,0 +1,12 @@
+# Environment
+.env
+config/service-account.json
+
+# Node modules
+node_modules/
+npm-debug.log
+.DS_Store
+
+# Logs
+logs/
+*.log
